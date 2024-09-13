@@ -4,9 +4,9 @@
  *****************************************************************************/
 class Main {
 	constructor() {
-    this.messenger = new Messenger(this);
+    	this.messenger = new Messenger(this);
 		this.widgets = new WidgetStore(this.messenger);
-    this._is_setup = false;
+    	this._is_setup = false;
 	}
 
   startup() {
@@ -49,10 +49,6 @@ class Main {
       }
       empty = this.messenger.recieveQueue.length == 0;
     }
-  }
-
-  run() {
-    // this.processMessages();
   }
 }
 
@@ -104,33 +100,6 @@ class Messenger {
         })
       }
     })
-  }
-
-  altSendMessage(url, message) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/event2', true);
-    xhr.onload = function () {
-      if (xhr.status >= 200 && xhr.status < 300) {
-          // Request was successful
-          console.log('Response:', xhr.responseText);
-      } else {
-          // Handle errors
-          console.error('Request failed with status:', xhr.status);
-      }
-    };
-
-    // Define what happens in case of error
-    xhr.onerror = function () {
-      console.error('Request failed');
-    };
-
-    // Prepare the data you want to send
-    // var data = JSON.stringify({
-    //   data: message.toCSV()
-    // });
-
-    // Send the request with the data
-    xhr.send();
   }
 
   checkoutNextMessage() {
@@ -201,47 +170,6 @@ function generateClickMessage(widget) {
   return message;
 }
 
-
-// function csvToArray(csvString) {
-//   const rows = csvString.split('\n');
-//   const result = [];
-
-//   for (const row of rows) {
-//     const values = row.split(',');
-//     result.push(values);
-//   }
-
-//   return result;
-// }
-
-// function makeBlockingRequest(url) {
-//   var xhr = new XMLHttpRequest();
-//   xhr.open("GET", url, false); // false makes the request synchronous
-//   xhr.send();
-  
-//   if (xhr.status === 200) {
-//       console.log(xhr.responseText);
-//       return xhr.responseText;
-//   } else {
-//       console.error(xhr.statusText);
-//       throw "fail";
-//   }
-// }
-
-// function makeNonBlockingRequest(url) {
-//   var xhr = new XMLHttpRequest();
-//   xhr.open("GET", url, true); // false makes the request synchronous
-//   xhr.send();
-  
-//   if (xhr.status === 200) {
-//       console.log(xhr.responseText);
-//       return xhr.responseText;
-//   } else {
-//       console.error(xhr.statusText);
-//       throw "fail";
-//   }
-// }
-
 class Message {
   constructor() {
     this.id = -1;
@@ -311,55 +239,7 @@ class Message {
   }
 }
 
-// function parseCSV(data) {
-//   const lines = data.split('\n');
-//   const messageArrays = [];
 
-//   for (const line of lines) {
-//     messageArrays.push(line.split(","));
-//   }
 
-//   return messageArrays;
-  
-// }
-
-// function createMessagesFromCSVArray(csvArray) {
-//   const messages = [];
-//   for (const csv of csvArray) {
-//     messages.push(Message.createFromCSV(csv));
-//   }
-//   return messages;
-// }
-
-// function getStartupData() {
-//   let self = this;
-//   fetch("/startup")
-//   .then(function(response) {
-//     if (response.ok) {
-//       console.log("Success");
-//     } else {
-//       self.retryStartup();
-//     }
-//   });
-// }
-
-// function sendMessages(url, messages, onSuccess, onFail) {
-//   fetch(url)
-//   .then(function(response) {
-//     if (response.ok) {
-//       response.text()  
-//       .then(function(text) {
-//         const csvArray = parseCSV(text);
-//         const responseMessages = createMessagesFromCSVArray(csvArray);
-//         onSuccess(responseMessages);
-//       });
-//     }
-//     else {
-//       const error = "error";
-//       onFail(error);
-//     }
-//   });
-// }
-
-const app = new Main();
-app.startup();
+//const app = new Main();
+//app.startup();
