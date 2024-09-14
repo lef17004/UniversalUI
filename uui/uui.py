@@ -12,6 +12,7 @@ class WidgetTypes(StrEnum):
     WINDOW = "WINDOW"
     LABEL = "LABEL"
     TEXTBOX = "TEXTBOX"
+    CHECKBOX = "CHECKBOX"
 
 
 class Commands(StrEnum):
@@ -154,9 +155,22 @@ def default_textbox_action(widget: Widget, message: Message, param: Any):
     widget.text = message.strings[0]
     print(f"New Text: {widget.text}")
 
+def checkbox_on_press(widget: Widget, message: Message, param: Any):
+    widget.is_checked = message.bools[0]
+    internal_action = self._internal_on_press
+    if internal_action and internal_action.func:
+        internal_action.func(widget, message, param )
+
+
 class TextBox(Widget):
     def __init__(self):
         self.on_char_typed: WidgetAction = default_func
+
+class CheckBox(Widget):
+    def __init__(self):
+        self.is_checked: bool = False
+        self.on_press: WidgetAction = None
+        self._internal_on_press: WidgetAction = None
 
 class Label(Widget):...
 
@@ -205,6 +219,15 @@ def create_label(widget_store: WidgetStore, publisher: Publisher, text: str) -> 
     send_create_widget_msg(label, publisher, msg)
 
     return label
+
+def create_checkbox(widget_store: WidgetStore, publisher: Publisher) -> Widget:
+    checkbox = CheckBox()
+    checkbox.type = WidgetTypes.CHECKBOX
+    widget_store.add(checkbox)
+
+    send_create_widget(checkbox, publisher)
+
+    return checkbox
 
 def create_window(widget_store: WidgetStore, publisher: Publisher) -> Widget:
     window = Window()
