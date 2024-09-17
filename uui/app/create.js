@@ -92,6 +92,9 @@ function createWidget(message, publisher, widgetStore) {
         case "TEXTBOX":
             widget = createTextBox(message, publisher, widgetStore);
             break;
+        case "CHECKBOX":
+            widget = createCheckBox(message, publisher, widgetStore);
+            break;
 	}
 	
     if (widget != null) {
@@ -99,6 +102,14 @@ function createWidget(message, publisher, widgetStore) {
         document.body.appendChild(widget);
         widgetStore[message.id] = widget;
     }
+}
+
+function sendEvent(message, publisher, widgetStore) {
+    sendMessage("/loop", message, function(response) {
+        processMessages(response, publisher, widgetStore);
+    }, function(error) {
+        console.log("Failed to send event.")
+    });
 }
 
 function createButton(message, publisher, widgetStore) {
@@ -161,6 +172,23 @@ function createTextBox(message, publisher, widgetStore) {
         })
     }
 
+    return widget;
+}
+
+function createCheckBox(message, publisher, widgetStore) {
+    const widget = document.createElement("input");
+    widget.type = "checkbox";
+    widget.widgetID = message.id;
+    widget.widgetType = message.widgetType;
+    
+    widget.oninput = function() {
+        const msg = new Message();
+        msg.command = "ONCLICK";
+        msg.id = widget.widgetID;
+        msg.bools[0] = widget.checked;
+        sendEvent(msg, publisher, widgetStore);
+    };
+    
     return widget;
 }
 

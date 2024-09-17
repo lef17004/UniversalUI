@@ -20,5 +20,6 @@ from .uui import (
     snap_to_widget,
     SnapPoint,
     create_label,
-    create_textbox
+    create_textbox,
+    create_checkbox
 )

@@ -1,13 +1,14 @@
 from __future__ import annotations
-from enum import IntEnum, auto, StrEnum
+from enum import IntEnum, auto, Enum
 from typing import Callable, Any, Optional
 
 
 Publisher = list
-
+class StrEnum(str, Enum):
+	...
 
 class WidgetTypes(StrEnum):
-    NONE = ("NONE",)
+    NONE = "NONE"
     BUTTON = "BUTTON"
     WINDOW = "WINDOW"
     LABEL = "LABEL"
@@ -47,9 +48,9 @@ class Message:
         self.command = data["command"]
         self.id = int(data["id"])
         self.type = data["widgetType"]
-        self.numbers = map(lambda num: int(num), data["numbers"])
+        self.numbers = list(map(lambda num: int(num), data["numbers"]))
         self.strings = data["strings"]
-        self.bools = map(lambda value: bool(value), data["bools"])
+        self.bools = list(map(lambda value: bool(value), data["bools"]))
 
 
 class Widget:
@@ -105,13 +106,13 @@ class Application:
 def handle_events(
     messages: list[Message], widget_store: WidgetStore, publisher: Publisher
 ) -> list[Message]:
+    print("Handle event")
     for message in messages:
-        if message.command == Commands.ONCLICK:
+        print(message.to_dict())
+        if message.command == Commands.ONCLICK or message.command == Commands.CHAR_TYPED:
+            print("Event")
             widget = widget_store.get(message.id)
-            widget.onclick.func(widget, message, widget.onclick.param)
-        elif message.command == Commands.CHAR_TYPED:
-            widget = widget_store.get(message.id)
-            widget.on_char_typed.func(widget, message, widget.on_char_typed.param)
+            widget.handle_event(widget, message)
 
     return []
 
@@ -134,7 +135,7 @@ def create_action(func: Action, param: Any):
 
 SetupFunction = Callable[[Application, list[Message]], Publisher]
 LoopFunction = Callable[[Application, list[Message]], Publisher]
-
+EventHandler = Callable[[Widget, Message], None]
 
 def default_func(Widget: Widget, message: Message, param: Any) -> None:
     print("Default Function")
@@ -145,32 +146,53 @@ DEFAULT_ACTION = create_action(default_func, None)
 
 class ClickableWidget:
     def __init__(self) -> None:
-        self.onclick: WidgetAction = default_func
+        self.onclick: WidgetAction = DEFAULT_ACTION
 
+def button_event_handler(widget: Widget, message: Message) -> None:
+    if message.command == "ONCLICK":
+        if widget.onclick and widget.onclick.func:
+            widget.onclick.func(widget, message, widget.onclick.param)
 
-class Button(Widget, ClickableWidget):
-    pass
+def textbox_event_handler(widget: Widget, message: Message) -> None:
+    if message.command == "CHAR_TYPED":
+        if widget.on_char_typed and widget.on_char_typed.func:
+            widget.on_char_typed.func(widget, message, widget.on_char_typed.param)
+
+class Button(Widget):
+    def __init__(self):
+        super().__init__()
+        self.handle_event: Optional[EventHandler] = None
+        self.onclick: Optional[Action] = None
 
 def default_textbox_action(widget: Widget, message: Message, param: Any):
     widget.text = message.strings[0]
     print(f"New Text: {widget.text}")
 
-def checkbox_on_press(widget: Widget, message: Message, param: Any):
+def checkbox_handle_event(widget: Widget, message: Message):
+    print("Checkboxx")
+    print(message.bools[0])
     widget.is_checked = message.bools[0]
-    internal_action = self._internal_on_press
-    if internal_action and internal_action.func:
-        internal_action.func(widget, message, param )
+    onclick_action = widget.onclick
+    if onclick_action and onclick_action.func:
+        onclick_action.func(widget, message, onclick_action.param)
 
+DEFAULT_TEXT_INPUT_FUNC = create_action(default_textbox_action, None)
 
 class TextBox(Widget):
     def __init__(self):
-        self.on_char_typed: WidgetAction = default_func
+        self.handle_event: Optional[EventHandler] = None
+        self.on_char_typed: Optional[WidgetAction] = None
 
 class CheckBox(Widget):
     def __init__(self):
         self.is_checked: bool = False
-        self.on_press: WidgetAction = None
-        self._internal_on_press: WidgetAction = None
+        self.onclick: WidgetAction = None
+        self.handle_event: EventHandler = None
+
+class Group(Widget):
+    def __init__(self):
+        self.widgets = [None * 10]
+        
 
 class Label(Widget):...
 
@@ -203,6 +225,8 @@ def send_text(widget: Widget, publisher: Publisher):
 def create_button(widget_store: WidgetStore, publisher: Publisher) -> Widget:
     button = Button()
     button.type = WidgetTypes.BUTTON
+    button.handle_event = button_event_handler
+    button.onclick = DEFAULT_ACTION
     widget_store.add(button)
 
     send_create_widget(button, publisher)
@@ -223,6 +247,8 @@ def create_label(widget_store: WidgetStore, publisher: Publisher, text: str) -> 
 def create_checkbox(widget_store: WidgetStore, publisher: Publisher) -> Widget:
     checkbox = CheckBox()
     checkbox.type = WidgetTypes.CHECKBOX
+    checkbox.handle_event = checkbox_handle_event
+    checkbox.onclick = DEFAULT_ACTION
     widget_store.add(checkbox)
 
     send_create_widget(checkbox, publisher)
@@ -241,14 +267,11 @@ def create_window(widget_store: WidgetStore, publisher: Publisher) -> Widget:
 def create_textbox(widget_store: WidgetStore, publisher: Publisher) -> Window:
     textbox = TextBox()
     textbox.type = WidgetTypes.TEXTBOX
+    textbox.handle_event = textbox_event_handler
+    textbox.on_char_typed = DEFAULT_TEXT_INPUT_FUNC
     widget_store.add(textbox)
 
     send_create_widget(textbox, publisher)
-
-    action = WidgetAction()
-    action.func = default_textbox_action
-    action.param = None
-    textbox.on_char_typed = action
 
     return textbox
 

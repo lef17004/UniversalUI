@@ -16,7 +16,8 @@ from uui import (
     SnapPoint,
     snap_to_widget,
     create_label,
-    create_textbox
+    create_textbox,
+    create_checkbox
 )
 from typing import Any
 
@@ -51,6 +52,7 @@ def setup(application: Application, messages: list[Message]) -> Publisher:
 
     textbox = create_textbox(widget_store, publisher)
 
+    checkbox = create_checkbox(widget_store, publisher)
 
     return publisher
 

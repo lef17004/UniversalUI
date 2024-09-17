@@ -19,3 +19,13 @@ CREATE
 	ID: INT,
 	WIDGET_TYPE: BUTTON,
 	STR1: STRING (text to show in button.)
+
+
+WINDOW
+  - Anchor Points
+
+VStack
+  - Is size of contents
+  - Can specify spacing 
+  - Can specify alignment
+
