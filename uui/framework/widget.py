@@ -1,7 +1,6 @@
 from __future__ import annotations
 from enum import StrEnum
-from .message import Message, Commands
-from .widgettype import WidgetType
+from .message import Message, Commands, WidgetType
 
 class Widget:
     def __init__(self) -> None:

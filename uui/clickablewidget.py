@@ -1,7 +1,4 @@
-from .widget import Widget
-from .widgetaction import DEFAULT_ACTION, Action, WidgetAction
-from .eventhandler import EventHandler
-
+from .framework import Widget, EventHandler, DEFAULT_ACTION, Action, WidgetAction
 
 class ClickableWidget(Widget):
     def __init__(self) -> None:

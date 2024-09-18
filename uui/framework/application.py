@@ -1,8 +1,7 @@
+from typing import Optional, Any, Callable
 from .publisher import Publisher
 from .widgetstore import WidgetStore
 from .message import Message, Commands
-from typing import Optional, Any, Callable
-from .publisher import Publisher
 from .window import create_window, Window
 
 class Application:

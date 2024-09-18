@@ -1,5 +1,5 @@
 from .widget import Widget
-from .widgettype import WidgetType
+from .message import WidgetType
 from .widgetstore import WidgetStore
 from .publisher import Publisher, send_create_widget
 

@@ -1,7 +1,7 @@
 from enum import StrEnum
 from .publisher import Publisher
 from .widget import Widget
-from .widgettype import WidgetType
+from .widget import WidgetType
 from .message import Message, Commands
 
 class SnapPoint(StrEnum):

@@ -1,11 +1,11 @@
-from .widget import Widget
-from .widgettype import WidgetType
-from .widgetaction import WidgetAction, DEFAULT_ACTION
-from .eventhandler import EventHandler
+from .framework import Widget
+from .framework import WidgetType
+from .framework import WidgetAction, DEFAULT_ACTION
+from .framework import EventHandler
 from .clickablewidget import ClickableWidget
-from .message import Message
-from .widgetstore import WidgetStore
-from .publisher import Publisher, send_create_widget
+from .framework import Message
+from .framework import WidgetStore
+from .framework import Publisher, send_create_widget
 
 class CheckBox(ClickableWidget):
     def __init__(self):

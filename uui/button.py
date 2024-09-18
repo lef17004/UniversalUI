@@ -1,11 +1,11 @@
-from .widget import Widget
-from .widgettype import WidgetType
+from .framework import Widget
+from .framework import WidgetType
 from .clickablewidget import ClickableWidget
-from .eventhandler import EventHandler
-from .widgetaction import WidgetAction, Action, DEFAULT_ACTION
-from .message import Message
-from .widgetstore import WidgetStore
-from .publisher import Publisher, send_create_widget
+from .framework import EventHandler
+from .framework import WidgetAction, Action, DEFAULT_ACTION
+from .framework import Message
+from .framework import WidgetStore
+from .framework import Publisher, send_create_widget
 
 class Button(ClickableWidget):
     def __init__(self):

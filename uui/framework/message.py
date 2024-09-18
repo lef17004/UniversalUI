@@ -1,5 +1,15 @@
 from enum import StrEnum
-from .widgettype import WidgetType
+
+class WidgetType(StrEnum):
+    NONE = "NONE"
+    BUTTON = "BUTTON"
+    WINDOW = "WINDOW"
+    LABEL = "LABEL"
+    TEXTBOX = "TEXTBOX"
+    CHECKBOX = "CHECKBOX"
+    GROUP = "GROUP"
+
+
 
 class Commands(StrEnum):
     NONE = "NONE"

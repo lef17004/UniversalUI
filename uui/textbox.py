@@ -1,11 +1,11 @@
 from typing import Any
-from .widget import Widget
-from .widgettype import WidgetType
-from .eventhandler import EventHandler
-from.widgetaction import WidgetAction, create_action
-from .message import Message
-from .publisher import Publisher, send_create_widget
-from .widgetstore import WidgetStore
+from .framework import Widget
+from .framework import WidgetType
+from .framework import EventHandler
+from .framework import WidgetAction, create_action
+from .framework import Message
+from .framework import Publisher, send_create_widget
+from .framework import WidgetStore
 
 
 class TextBox(Widget):
