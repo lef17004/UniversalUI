@@ -1,106 +1,16 @@
 from __future__ import annotations
-from enum import IntEnum, auto, Enum
+from enum import IntEnum, auto, Enum, StrEnum
 from typing import Callable, Any, Optional
-
-
+from .message import WidgetTypes, Commands, Message
+from .widget import Widget
+from .window import Window
+from .widgetstore import WidgetStore
+from .publisher import Publisher, send_create_widget
+from .application import Application, LoopFunction, SetupFunction
+from .widgetaction import Action, WidgetAction, create_action, DEFAULT_ACTION
+from .eventhandler import EventHandler
+from .button import Button
 Publisher = list
-class StrEnum(str, Enum):
-	...
-
-class WidgetTypes(StrEnum):
-    NONE = "NONE"
-    BUTTON = "BUTTON"
-    WINDOW = "WINDOW"
-    LABEL = "LABEL"
-    TEXTBOX = "TEXTBOX"
-    CHECKBOX = "CHECKBOX"
-
-
-class Commands(StrEnum):
-    NONE = "NONE"
-    CREATE = "CREATE"
-    SET_TEXT = "SET_TEXT"
-    ONCLICK = "ONCLICK"
-    SNAP = "SNAP"
-    CHAR_TYPED = "CHAR_TYPED"
-
-
-class Message:
-    def __init__(self) -> None:
-        self.command = Commands.NONE
-        self.id = -1
-        self.type: WidgetTypes = WidgetTypes.NONE
-        self.numbers = [0, 0, 0, 0, 0]
-        self.strings = ["", "", "", "", ""]
-        self.bools = [False, False, False, False, False]
-
-    def to_dict(self) -> dict:
-        return {
-            "command": self.command,
-            "id": self.id,
-            "widgetType": self.type,
-            "numbers": self.numbers,
-            "strings": self.strings,
-            "bools": self.bools,
-        }
-
-    def from_dict(self, data: dict):
-        self.command = data["command"]
-        self.id = int(data["id"])
-        self.type = data["widgetType"]
-        self.numbers = list(map(lambda num: int(num), data["numbers"]))
-        self.strings = data["strings"]
-        self.bools = list(map(lambda value: bool(value), data["bools"]))
-
-
-class Widget:
-    def __init__(self) -> None:
-        self.visible: bool = True
-        self.enabled: bool = True
-        self.text: str = ""
-        self.type: WidgetTypes = WidgetTypes.NONE
-        self.id = -1
-
-class Window(Widget): pass
-
-
-class WidgetStore:
-    def __init__(self):
-        self._id_counter = 0
-        self._widgets = []
-
-    def add(self, widget: Widget):
-        widget.id = self._id_counter
-        self._id_counter += 1
-        self._widgets.append(widget)
-
-    def get(self, id: int):
-        return self._widgets[id]
-
-
-class Publisher:
-    def __init__(self):
-        self._messages: list[Message] = []
-
-    def add(self, message: Message):
-        self._messages.append(message)
-
-    def clear(self):
-        self._messages.clear()
-
-    def checkout_as_json(self) -> list[dict]:
-        json = list(map(lambda message: message.to_dict(), self._messages))
-        self.clear()
-        return json
-
-
-class Application:
-    def __init__(self) -> None:
-        self.publisher: Publisher = Publisher()
-        self.widgetStore: WidgetStore = WidgetStore()
-        self.app_state: Optional[Any] = None
-
-
 
 
 def handle_events(
@@ -117,52 +27,15 @@ def handle_events(
     return []
 
 
-Action = Callable[[Widget, Message, Any], None]
 
 
-class WidgetAction:
-    def __init__(self):
-        self.func: Optional[Action] = None
-        self.param: Optional[Any] = None
 
-
-def create_action(func: Action, param: Any):
-    action = WidgetAction()
-    action.func = func
-    action.param = param
-    return action
-
-
-SetupFunction = Callable[[Application, list[Message]], Publisher]
-LoopFunction = Callable[[Application, list[Message]], Publisher]
-EventHandler = Callable[[Widget, Message], None]
-
-def default_func(Widget: Widget, message: Message, param: Any) -> None:
-    print("Default Function")
-
-
-DEFAULT_ACTION = create_action(default_func, None)
-
-
-class ClickableWidget:
-    def __init__(self) -> None:
-        self.onclick: WidgetAction = DEFAULT_ACTION
-
-def button_event_handler(widget: Widget, message: Message) -> None:
-    if message.command == "ONCLICK":
-        if widget.onclick and widget.onclick.func:
-            widget.onclick.func(widget, message, widget.onclick.param)
 
 def textbox_event_handler(widget: Widget, message: Message) -> None:
     if message.command == "CHAR_TYPED":
         if widget.on_char_typed and widget.on_char_typed.func:
             widget.on_char_typed.func(widget, message, widget.on_char_typed.param)
 
-class Button(Widget):
-    def __init__(self):
-        super().__init__()
-        self.handle_event: Optional[EventHandler] = None
-        self.onclick: Optional[Action] = None
 
 def default_textbox_action(widget: Widget, message: Message, param: Any):
     widget.text = message.strings[0]
@@ -191,18 +64,14 @@ class CheckBox(Widget):
 
 class Group(Widget):
     def __init__(self):
-        self.widgets = [None * 10]
+        self.widgets = [None] * 10
+        self.capacity = 0
+        self.size = 0
         
 
 class Label(Widget):...
 
-def send_create_widget(widget: Widget, publisher: Publisher):
-    msg = Message()
-    msg.command = Commands.CREATE
-    msg.type = widget.type
-    msg.id = widget.id
 
-    publisher.add(msg)
 
 def send_create_widget_msg(widget: Widget, publisher: Publisher, msg: Message):
     msg.command = Commands.CREATE
@@ -221,17 +90,6 @@ def send_text(widget: Widget, publisher: Publisher):
 
     publisher.add(msg)
 
-
-def create_button(widget_store: WidgetStore, publisher: Publisher) -> Widget:
-    button = Button()
-    button.type = WidgetTypes.BUTTON
-    button.handle_event = button_event_handler
-    button.onclick = DEFAULT_ACTION
-    widget_store.add(button)
-
-    send_create_widget(button, publisher)
-
-    return button
 
 def create_label(widget_store: WidgetStore, publisher: Publisher, text: str) -> Widget:
     label = Label()
@@ -274,6 +132,17 @@ def create_textbox(widget_store: WidgetStore, publisher: Publisher) -> Window:
     send_create_widget(textbox, publisher)
 
     return textbox
+
+def create_group(widget_store: WidgetStore, publisher: Publisher) -> None:
+    group = Group()
+    group.type = WidgetTypes.GROUP
+    group.capacity = 10
+    group.size = 0
+    widget_store.add(group)
+
+    send_create_widget(group)
+
+    return group
 
 def set_text(widget: Widget, text: str, publisher: Publisher):
     widget.text = text
@@ -318,3 +187,16 @@ def snap_to_widget(
     msg.numbers[2] = y_offset
 
     publisher.add(msg)
+
+def add_to_group(group: Group, widget: Widget):
+    if group.size < group.capacity:
+        # Add code to remove existing parent
+        widget.parent = group
+        group.widgets[group.size] = widget
+        group.size += 1
+
+        message = Message()
+        message.command = Commands.ADD_TO_GROUP
+        message.id = group.id
+        message.numbers[0] = widget.id
+

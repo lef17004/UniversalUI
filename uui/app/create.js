@@ -95,10 +95,13 @@ function createWidget(message, publisher, widgetStore) {
         case "CHECKBOX":
             widget = createCheckBox(message, publisher, widgetStore);
             break;
+        case "GROUP":
+            widget = createGroup(message, publisher, widgetStore);
+            break;
 	}
 	
     if (widget != null) {
-        widget.style.position = "absolute";
+        widget.style.position = "fixed";
         document.body.appendChild(widget);
         widgetStore[message.id] = widget;
     }
@@ -136,7 +139,7 @@ function createWindow(message, publisher, widgetStore) {
     windowWidget.style.height = "100%";
     windowWidget.widgetType = "Window";
     windowWidget.widgetID = message.id;
-    windowWidget.style.position = "absolute";
+    windowWidget.style.position = "fixed";
     windowWidget.style.left = "0px";
     windowWidget.style.top = "0px";
     windowWidget.style.backgroundColor = "green";
@@ -189,6 +192,14 @@ function createCheckBox(message, publisher, widgetStore) {
         sendEvent(msg, publisher, widgetStore);
     };
     
+    return widget;
+}
+
+function createGroup(message, publisher, windowWidget) {
+    const widget = document.createElement("div");
+    widget.widgetType = message.widgetType;
+    widget.widgetID = message.id;
+
     return widget;
 }
 
@@ -286,7 +297,38 @@ function snapToWidget(message, publisher, widgetStore) {
     const xOffset = message.numbers[1];
     const yOffset = message.numbers[2];
     const targetLocation = getLocationAtSnapPoint(widget2, snapPoint2);
-    placeWidgetAtLocation(widget1, snapPoint1, targetLocation, xOffset, yOffset);
+
+    if (widget1.widgetType != "GROUP") {
+        placeWidgetAtLocation(widget1, snapPoint1, targetLocation, xOffset, yOffset);
+    } else {
+        placeWidgetsAtLocation(widget1, snapPoint1, targetLocation, xOffset, yOffset);
+    }
+    
+}
+
+function placeWidgetsAtLocation(group, snapPoint1, targetLocation, xOffset, yOffset) {
+    const groupBounds = group.getBoundingClientRect();
+    const helperDiv = document.createElement("div");
+    document.body.appendChild(helperDiv);
+    helperDiv.position = "fixed";
+    helperDiv.style.width = groupBounds.width;
+    helperDiv.style.height = groupBounds.height;
+    helperDiv.style.left = groupBounds.left + "px";
+    helperDiv.style.right = groupBounds.right + "px";
+
+
+    placeWidgetAtLocation(helperDiv, snapPoint1, targetLocation, xOffset, yOffset)
+    const movedBounds = helperDiv.getBoundingClientRect()
+    const xDelta = movedBounds.left - groupBounds.left;
+    const yDelta = movedBounds.top - groupBounds.left;
+
+    const children = group.children;
+    for (const child of children) {
+        child.left = child.left + xDelta + "px";
+        child.top = child.top + yDelta + "px";
+    }   
+
+    document.body.removeChild(helperDiv);
 }
 
 // function snapToWidget(widget1, widget2, snapPoint1, snapPoint2, xOffset, yOffset) {
