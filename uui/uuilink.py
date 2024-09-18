@@ -1,8 +1,9 @@
 from bottle import route, run, template, static_file, post, request
 from typing import Callable, Any
 
-from .uui import Message, SetupFunction, LoopFunction, Application
 
+from .message import Message
+from .application import SetupFunction, LoopFunction, Application
 
 def messages_to_json(messages: list[Message]):
     return list(map(lambda message: message.to_dict(), messages))

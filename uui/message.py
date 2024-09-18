@@ -1,5 +1,5 @@
 from enum import StrEnum
-from .widget import WidgetTypes
+from .widgettype import WidgetType
 
 class Commands(StrEnum):
     NONE = "NONE"
@@ -14,7 +14,7 @@ class Message:
     def __init__(self) -> None:
         self.command = Commands.NONE
         self.id = -1
-        self.type: WidgetTypes = WidgetTypes.NONE
+        self.type: WidgetType = WidgetType.NONE
         self.numbers = [0, 0, 0, 0, 0]
         self.strings = ["", "", "", "", ""]
         self.bools = [False, False, False, False, False]

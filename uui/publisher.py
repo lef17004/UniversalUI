@@ -23,3 +23,10 @@ def send_create_widget(widget: Widget, publisher: Publisher):
     msg.id = widget.id
 
     publisher.add(msg)
+
+def send_create_widget_msg(widget: Widget, publisher: Publisher, msg: Message):
+    msg.command = Commands.CREATE
+    msg.type = widget.type
+    msg.id = widget.id
+
+    publisher.add(msg)

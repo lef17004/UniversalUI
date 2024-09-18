@@ -2,7 +2,7 @@ from uui import (
     start_app,
     Message,
     Commands,
-    WidgetTypes,
+    WidgetType,
     Application,
     create_button,
     set_text,

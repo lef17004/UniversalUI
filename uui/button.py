@@ -1,4 +1,5 @@
-from .widget import Widget, WidgetTypes
+from .widget import Widget
+from .widgettype import WidgetType
 from .clickablewidget import ClickableWidget
 from .eventhandler import EventHandler
 from .widgetaction import WidgetAction, Action, DEFAULT_ACTION
@@ -12,7 +13,7 @@ class Button(ClickableWidget):
 
 def create_button(widget_store: WidgetStore, publisher: Publisher) -> Widget:
     button = Button()
-    button.type = WidgetTypes.BUTTON
+    button.type = WidgetType.BUTTON
     button.handle_event = button_event_handler
     button.onclick = DEFAULT_ACTION
     widget_store.add(button)
