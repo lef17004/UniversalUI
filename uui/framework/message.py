@@ -19,6 +19,7 @@ class Commands(StrEnum):
     SNAP = "SNAP"
     CHAR_TYPED = "CHAR_TYPED"
     ADD_TO_GROUP = "ADD_TO_GROUP"
+    REMOVE_FROM_GROUP = "REMOVE_FROM_GROUP"
 
 class Message:
     def __init__(self) -> None:

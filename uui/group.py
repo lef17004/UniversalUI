@@ -9,6 +9,8 @@ from .framework import Message
 from .framework import WidgetStore
 from .framework import Publisher, send_create_widget
 
+import framework
+
 class Group(Widget):
     def __init__(self):
         self.widgets: list[Optional[Widget]] = [None] * 10
@@ -27,9 +29,15 @@ def create_group(widget_store: WidgetStore, publisher: Publisher) -> None:
     return group
 
 
-def add_to_group(group: Group, widget: Widget):
+def add_to_group(group: Group, widget: Widget, publisher: Publisher):
+    if widget.parent == group:
+        return
+
     if group.size < group.capacity:
         # Add code to remove existing parent
+        if widget.parent:
+            remove_from_group(widget.parent, widget, publisher)
+
         widget.parent = group
         group.widgets[group.size] = widget
         group.size += 1
@@ -38,3 +46,15 @@ def add_to_group(group: Group, widget: Widget):
         message.command = Commands.ADD_TO_GROUP
         message.id = group.id
         message.numbers[0] = widget.id
+
+def remove_from_group(group: Group, widget: Widget, publisher: Publisher):
+    for child in group.widgets:
+        if child == widget:
+            group.widgets.remove(widget)
+            widget.parent = None
+
+            msg = Message()
+            msg.command = framework.Commands.REMOVE_FROM_GROUP
+            msg.id = group.id
+            msg.numbers[0] = widget.id
+            publisher.add(msg) 

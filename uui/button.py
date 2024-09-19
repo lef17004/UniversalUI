@@ -1,28 +1,22 @@
-from .framework import Widget
-from .framework import WidgetType
 from .clickablewidget import ClickableWidget
-from .framework import EventHandler
-from .framework import WidgetAction, Action, DEFAULT_ACTION
-from .framework import Message
-from .framework import WidgetStore
-from .framework import Publisher, send_create_widget
+import uui.framework as fw
 
 class Button(ClickableWidget):
     def __init__(self):
         super().__init__()
 
-def create_button(widget_store: WidgetStore, publisher: Publisher) -> Widget:
+def create_button(widget_store: fw.WidgetStore, publisher: fw.Publisher) -> fw.Widget:
     button = Button()
-    button.type = WidgetType.BUTTON
+    button.type = fw.WidgetType.BUTTON
     button.handle_event = button_event_handler
-    button.onclick = DEFAULT_ACTION
+    button.onclick = fw.DEFAULT_ACTION
     widget_store.add(button)
 
-    send_create_widget(button, publisher)
+    fw.send_create_widget(button, publisher)
 
     return button
 
-def button_event_handler(widget: Widget, message: Message) -> None:
+def button_event_handler(widget: fw.Widget, message: fw.Message) -> None:
     if message.command == "ONCLICK":
         button: Button = widget
         if button.onclick and button.onclick.func:
