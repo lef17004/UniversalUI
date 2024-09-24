@@ -8,3 +8,4 @@ from .uuilink import *
 from .eventhandler import *
 from .widgetaction import * 
 from .snap import *
+from .error import Error
